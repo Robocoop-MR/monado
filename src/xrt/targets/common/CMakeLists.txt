@@ -146,6 +146,10 @@ if(XRT_BUILD_DRIVER_RIFT_S)
 	target_link_libraries(target_lists PRIVATE drv_rift_s)
 endif()
 
+if(XRT_BUILD_DRIVER_ROBOCOOP)
+	target_link_libraries(target_lists PRIVATE drv_robocoop)
+endif()
+
 if(XRT_BUILD_DRIVER_ROKID)
 	target_link_libraries(target_lists PRIVATE drv_rokid)
 endif()

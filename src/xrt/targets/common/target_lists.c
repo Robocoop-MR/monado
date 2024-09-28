@@ -44,6 +44,10 @@
 #include "rift_s/rift_s_interface.h"
 #endif
 
+#ifdef XRT_BUILD_DRIVER_ROBOCOOP
+#include "robocoop/robocoop_hmd_interface.h"
+#endif
+
 #ifdef XRT_BUILD_DRIVER_ROKID
 #include "rokid/rokid_interface.h"
 #endif
@@ -234,6 +238,10 @@ xrt_auto_prober_create_func_t target_auto_list[] = {
 
 #ifdef XRT_BUILD_DRIVER_REALSENSE
     rs_create_auto_prober,
+#endif
+
+#ifdef XRT_BUILD_DRIVER_ROBOCOOP
+    robocoop_create_auto_prober,
 #endif
 
 #ifdef XRT_BUILD_DRIVER_EUROC
