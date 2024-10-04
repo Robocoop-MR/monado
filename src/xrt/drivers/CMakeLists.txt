@@ -242,8 +242,13 @@ endif()
 
 if(XRT_BUILD_DRIVER_ROBOCOOP)
 	add_library(
-		drv_robocoop STATIC robocoop/robocoop_hmd.c robocoop/robocoop_hmd_interface.h
-				  robocoop/robocoop_prober.c
+		drv_robocoop STATIC
+		robocoop/robocoop_config.c
+		robocoop/robocoop_config.h
+		robocoop/robocoop_devices.h
+		robocoop/robocoop_hmd.c
+		robocoop/robocoop_hmd_interface.h
+		robocoop/robocoop_prober.c
 		)
 	target_link_libraries(drv_robocoop PRIVATE xrt-interfaces aux_util)
 endif()

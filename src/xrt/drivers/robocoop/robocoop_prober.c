@@ -9,12 +9,16 @@
  * @ingroup drv_robocoop
  */
 
+#include "robocoop_config.h"
+#include "util/u_logging.h"
 #include "xrt/xrt_prober.h"
 
 #include "util/u_misc.h"
+#include "util/u_json.h"
 
 #include "robocoop_hmd_interface.h"
 
+// TODO: Allow setting logging level specific to this driver
 
 /*!
  * @implements xrt_auto_prober
@@ -43,10 +47,10 @@ robocoop_auto_prober_destroy(struct xrt_auto_prober *p)
 //! @public @memberof robocoop_auto_prober
 static int
 robocoop_auto_prober_autoprobe(struct xrt_auto_prober *xap,
-                             cJSON *attached_data,
-                             bool no_hmds,
-                             struct xrt_prober *xp,
-                             struct xrt_device **out_xdevs)
+                               cJSON *attached_data,
+                               bool no_hmds,
+                               struct xrt_prober *xp,
+                               struct xrt_device **out_xdevs)
 {
 	struct robocoop_auto_prober *ap = robocoop_auto_prober(xap);
 	(void)ap;
@@ -56,8 +60,17 @@ robocoop_auto_prober_autoprobe(struct xrt_auto_prober *xap,
 		return 0;
 	}
 
-	out_xdevs[0] = robocoop_create();
-	return 1;
+	int device_count = 0;
+
+	const cJSON *hmd_config = robocoop_get_device_config(ROBOCOOP_HMD);
+
+	if (hmd_config == NULL) {
+		U_LOG_E("Failed to read / parse the config for RoboCoop's HMD");
+	} else {
+		out_xdevs[device_count++] = robocoop_create(hmd_config);
+	}
+
+	return device_count;
 }
 
 struct xrt_auto_prober *

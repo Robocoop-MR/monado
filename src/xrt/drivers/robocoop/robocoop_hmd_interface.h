@@ -16,11 +16,20 @@
 extern "C" {
 #endif
 
+#include "util/u_json.h"
+
 /*!
  * @defgroup drv_robocoop RoboCoop's HMD driver
  * @ingroup drv
  *
  * @brief Driver for RoboCoop's HMD.
+ */
+
+/*!
+ * @defgroup drv_robocoop_internals
+ * @ingroup drv_robocoop
+ *
+ * @brief Our driver's internals
  */
 
 /*!
@@ -39,11 +48,11 @@ robocoop_create_auto_prober(void);
  * @ingroup drv_robocoop
  */
 struct xrt_device *
-robocoop_create(void);
+robocoop_create(const cJSON *config);
 
 /*!
  * @dir drivers/robocoop
- *
+ *void
  * @brief @ref drv_robocoop files.
  */
 

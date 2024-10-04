@@ -16,23 +16,25 @@
 #include "os/os_time.h"
 #include "xrt/xrt_defines.h"
 #include "xrt/xrt_device.h"
+#include "xrt/xrt_results.h"
 
-#include "math/m_relation_history.h"
 #include "math/m_api.h"
 #include "math/m_mathinclude.h" // IWYU pragma: keep
+#include "math/m_relation_history.h"
 
 #include "util/u_debug.h"
 #include "util/u_device.h"
 #include "util/u_distortion_mesh.h"
+#include "util/u_json.h"
 #include "util/u_logging.h"
 #include "util/u_misc.h"
 #include "util/u_time.h"
 #include "util/u_var.h"
 #include "util/u_visibility_mask.h"
-#include "xrt/xrt_results.h"
 
 #include <stdio.h>
 
+#include "robocoop_config.h"
 
 /*
  *
@@ -50,6 +52,8 @@ struct robocoop_hmd
 	struct xrt_device base;
 
 	struct xrt_pose pose;
+
+	const cJSON *config;
 
 	enum u_logging_level log_level;
 
@@ -162,13 +166,15 @@ robocoop_get_visibility_mask(struct xrt_device *xdev,
 }
 
 struct xrt_device *
-robocoop_create(void)
+robocoop_create(const cJSON *config)
 {
 	// This indicates you won't be using Monado's built-in tracking algorithms.
 	enum u_device_alloc_flags flags =
 	    (enum u_device_alloc_flags)(U_DEVICE_ALLOC_HMD | U_DEVICE_ALLOC_TRACKING_NONE);
 
 	struct robocoop_hmd *hmd = U_DEVICE_ALLOCATE(struct robocoop_hmd, flags, 1, 0);
+
+	hmd->config = config;
 
 	// This list should be ordered, most preferred first.
 	size_t idx = 0;
@@ -225,8 +231,22 @@ robocoop_create(void)
 		robocoop_destroy(&hmd->base);
 		return NULL;
 	}
-	const int panel_w = 1080;
-	const int panel_h = 1200;
+
+	const cJSON *screen_config = u_json_get(hmd->config, "display");
+
+	int panel_w = ROBOCOOP_HMD_DEFAULT_SCREEN_WIDTH;
+	int panel_h = ROBOCOOP_HMD_DEFAULT_SCREEN_HEIGHT;
+
+	if (screen_config != NULL) {
+		if (!u_json_get_int(u_json_get(screen_config, "width"), &panel_w)) {
+			panel_w = ROBOCOOP_HMD_DEFAULT_SCREEN_WIDTH;
+		}
+		if (!u_json_get_int(u_json_get(screen_config, "height"), &panel_h)) {
+			panel_h = ROBOCOOP_HMD_DEFAULT_SCREEN_HEIGHT;
+		}
+	}
+
+	panel_w /= 2;
 
 	// Single "screen" (always the case)
 	hmd->base.hmd->screens[0].w_pixels = panel_w * 2;
